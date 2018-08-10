@@ -47,7 +47,10 @@ func TestUserBookmarksIllust(t *testing.T) {
 	app := NewApp()
 	illusts, err := app.UserBookmarksIllust(testUID, "public", 0, "")
 	r.Nil(err)
-	r.NotEmpty(illusts)
+	r.Equal(uint64(70095856), illusts[0].ID)
+	size, err := download(illusts[0].MetaSinglePage.OriginalImageURL, ".", ".test.png", true)
+	r.Nil(err)
+	r.Equal(int64(993598), size)
 }
 
 func TestIllustFollow(t *testing.T) {

@@ -144,9 +144,10 @@ func setToken(t, rt string) {
 	_tokenDeadline = time.Time{}
 }
 
+// download image to file (use 6.0 app-api)
 func download(url, path, name string, replace bool) (int64, error) {
 	if path == "" {
-		return 0, fmt.Errorf("downloadpath needed")
+		return 0, fmt.Errorf("download path needed")
 	}
 	if name == "" {
 		name = filepath.Base(url)
