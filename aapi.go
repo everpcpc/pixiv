@@ -187,25 +187,3 @@ func (a *AppPixivAPI) IllustFollow(restrict string, offset int) ([]Illust, error
 	}
 	return data.Illusts, nil
 }
-
-// func (a *AppPixivAPI) testResponse() error {
-// 	if err := CheckRefreshToken(); err != nil {
-// 		return fmt.Errorf("refresh token failed: %v", err)
-// 	}
-// 	path := "v2/illust/follow"
-// 	params := &illustFollowParams{
-// 		Restrict: "public",
-// 	}
-// 	req, err := a.sling.New().Get(path).Set("Authorization", "Bearer "+_token).QueryStruct(params).Request()
-// 	client := &http.Client{}
-// 	resp, err := client.Do(req)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	body, err := ioutil.ReadAll(resp.Body)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	fmt.Println("======", string(body))
-// 	return fmt.Errorf("OK")
-// }

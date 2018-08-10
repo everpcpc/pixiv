@@ -134,7 +134,6 @@ func CheckRefreshToken() error {
 	return refreshToken()
 }
 
-// setToken used only for test now
 func setToken(t, rt string) {
 	_token = t
 	_refreshToken = rt
