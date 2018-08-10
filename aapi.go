@@ -18,20 +18,6 @@ func NewApp() *AppPixivAPI {
 	}
 }
 
-type authParams struct {
-}
-
-func (a *AppPixivAPI) Auth(username, password string) {
-
-	// url := "https://oauth.secure.pixiv.net/auth/token"
-	// 'User-Agent': 'PixivAndroidApp/5.0.64 (Android 6.0)',
-	// data = {
-	// 	'get_secure_url': 1,
-	// 	'client_id': self.client_id,
-	// 	'client_secret': self.client_secret,
-	// }
-}
-
 type userParams struct {
 	userID string `url:"user_id,omitempty"`
 	filter string `url:"filter,omitempty"`

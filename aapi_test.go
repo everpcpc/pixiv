@@ -1,12 +1,13 @@
 package pixiv
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestAppPixivAPIUserDetail(t *testing.T) {
-	aapi := NewApp()
-	fmt.Println(aapi.UserDetail("6101418"))
-	panic("fdsa")
+	r := require.New(t)
+	_, err := Login("x", "x")
+	r.Nil(err)
 }
