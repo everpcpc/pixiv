@@ -2,6 +2,10 @@ package pixiv
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/dghubble/sling"
@@ -138,4 +142,42 @@ func setToken(t, rt string) {
 	_token = t
 	_refreshToken = rt
 	_tokenDeadline = time.Time{}
+}
+
+func download(url, path, name string, replace bool) (int64, error) {
+	if path == "" {
+		return 0, fmt.Errorf("downloadpath needed")
+	}
+	if name == "" {
+		name = filepath.Base(url)
+	}
+	fullPath := filepath.Join(path, name)
+
+	if _, err := os.Stat(fullPath); err == nil {
+		return 0, nil
+	}
+
+	output, err := os.Create(fullPath)
+	if err != nil {
+		return 0, err
+	}
+	defer output.Close()
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return 0, err
+	}
+	req.Header.Add("Referer", apiBase)
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	n, err := io.Copy(output, resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	return n, nil
 }

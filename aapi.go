@@ -6,19 +6,22 @@ import (
 	"github.com/dghubble/sling"
 )
 
+const (
+	apiBase      = "https://app-api.pixiv.net/"
+	apiUserAgent = "PixivIOSApp/6.7.1 (iOS 10.3.1; iPhone8,1)"
+)
+
 // AppPixivAPI -- App-API (6.x - app-api.pixiv.net)
 type AppPixivAPI struct {
 	sling *sling.Sling
 }
 
 func NewApp() *AppPixivAPI {
-	s := sling.New().Base("https://app-api.pixiv.net/").Set("User-Agent", "PixivIOSApp/6.7.1 (iOS 10.3.1; iPhone8,1)").Set("App-Version", "6.7.1").Set("App-OS-VERSION", "10.3.1").Set("App-OS", "ios")
-	return &AppPixivAPI{
-		sling: s,
-	}
+	s := sling.New().Base(apiBase).Set("User-Agent", apiUserAgent).Set("App-Version", "6.7.1").Set("App-OS-VERSION", "10.3.1").Set("App-OS", "ios")
+	return &AppPixivAPI{sling: s}
 }
 
-type UserProfileImages struct {
+type UserImages struct {
 	Medium string `json:"medium"`
 }
 type User struct {
@@ -28,7 +31,7 @@ type User struct {
 	Comment    string `json:"comment"`
 	IsFollowed bool   `json:"is_followed"`
 
-	ProfileImages UserProfileImages `json:"profile_image_urls"`
+	ProfileImages UserImages `json:"profile_image_urls"`
 }
 type UserDetail struct {
 	User *User `json:"user"`
@@ -94,11 +97,7 @@ func (a *AppPixivAPI) request(path string, params, data interface{}, auth bool) 
 	} else {
 		_, err = a.sling.New().Get(path).QueryStruct(params).ReceiveSuccess(data)
 	}
-
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 type userDetailParams struct {
