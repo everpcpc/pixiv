@@ -1,4 +1,4 @@
-# pixiv
+# pixiv [![build](https://travis-ci.org/everpcpc/pixiv.svg)](https://travis-ci.org/everpcpc/pixiv)
 
 Pixiv API for Golang (with Auth supported)
 
