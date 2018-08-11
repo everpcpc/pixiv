@@ -19,6 +19,7 @@ const (
 var (
 	_token, _refreshToken string
 	_tokenDeadline        time.Time
+	authHook              func(string, string, time.Time) error
 )
 
 type AccountProfileImages struct {
@@ -106,10 +107,20 @@ func auth(username, password string) (*authInfo, error) {
 		}
 	}
 	_token = res.Response.AccessToken
-	_tokenDeadline = time.Now().Add(time.Duration(res.Response.ExpiresIn) * time.Second)
 	_refreshToken = res.Response.RefreshToken
+	_tokenDeadline = time.Now().Add(time.Duration(res.Response.ExpiresIn) * time.Second)
 
-	return res.Response, nil
+	if authHook != nil {
+		err = authHook(_token, _refreshToken, _tokenDeadline)
+	}
+
+	return res.Response, err
+}
+
+// HookAuth add a hook with (token, refreshToken, tokenDeadline) after auth
+// prividing a way to store the latest token
+func HookAuth(f func(string, string, time.Time) error) {
+	authHook = f
 }
 
 func Login(username, password string) (*Account, error) {
@@ -120,7 +131,16 @@ func Login(username, password string) (*Account, error) {
 	return a.User, nil
 }
 
-func refreshToken() error {
+func SetAuth(t, rt string) {
+	_token = t
+	_refreshToken = rt
+	_tokenDeadline = time.Time{}
+}
+
+func refreshAuth() error {
+	if time.Now().Before(_tokenDeadline) {
+		return nil
+	}
 	if _refreshToken == "" {
 		return fmt.Errorf("missing refresh token")
 	}
@@ -129,19 +149,6 @@ func refreshToken() error {
 		return err
 	}
 	return nil
-}
-
-func CheckRefreshToken() error {
-	if time.Now().Before(_tokenDeadline) {
-		return nil
-	}
-	return refreshToken()
-}
-
-func setToken(t, rt string) {
-	_token = t
-	_refreshToken = rt
-	_tokenDeadline = time.Time{}
 }
 
 // download image to file (use 6.0 app-api)
