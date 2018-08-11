@@ -117,8 +117,8 @@ func auth(username, password string) (*authInfo, error) {
 	return res.Response, err
 }
 
-// HookAuth add a hook with (token, refreshToken, tokenDeadline) after auth
-// prividing a way to store the latest token
+// HookAuth add a hook with (token, refreshToken, tokenDeadline) after a successful auth.
+// Prividing a way to store the latest token.
 func HookAuth(f func(string, string, time.Time) error) {
 	authHook = f
 }
