@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +18,7 @@ func initTest() (err error) {
 	if tokenSet {
 		return
 	}
-	SetAuth(os.Getenv("TOKEN"), os.Getenv("REFRESH_TOKEN"))
+	LoadAuth(os.Getenv("TOKEN"), os.Getenv("REFRESH_TOKEN"), time.Time{})
 	testUID, err = strconv.ParseUint(os.Getenv("TEST_UID"), 10, 0)
 	tokenSet = true
 	return err
@@ -61,11 +62,3 @@ func TestIllustFollow(t *testing.T) {
 	r.Nil(err)
 	r.Len(illusts, 30)
 }
-
-// func TestTest(t *testing.T) {
-// 	// r := require.New(t)
-// 	initTest()
-// 	app := NewApp()
-// 	app.testResponse()
-// 	panic("test")
-// }

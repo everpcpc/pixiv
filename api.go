@@ -50,7 +50,7 @@ type authInfo struct {
 	DeviceToken  string   `json:"device_token"`
 }
 
-type loginParams struct {
+type authParams struct {
 	GetSecureURL int    `url:"get_secure_url,omitempty"`
 	ClientID     string `url:"client_id,omitempty"`
 	ClientSecret string `url:"client_secret,omitempty"`
@@ -72,22 +72,8 @@ type Perror struct {
 	Code    int    `json:"code"`
 }
 
-func auth(username, password string) (*authInfo, error) {
+func auth(params *authParams) (*authInfo, error) {
 	s := sling.New().Base("https://oauth.secure.pixiv.net/").Set("User-Agent", "PixivAndroidApp/5.0.64 (Android 6.0)")
-	params := &loginParams{
-		GetSecureURL: 1,
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-	}
-
-	if (username != "") && (password != "") {
-		params.GrantType = "password"
-		params.Username = username
-		params.Password = password
-	} else {
-		params.GrantType = "refresh_token"
-		params.RefreshToken = _refreshToken
-	}
 
 	res := &loginResponse{
 		Response: &authInfo{
@@ -124,31 +110,47 @@ func HookAuth(f func(string, string, time.Time) error) {
 }
 
 func Login(username, password string) (*Account, error) {
-	a, err := auth(username, password)
+	params := &authParams{
+		GetSecureURL: 1,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		GrantType:    "password",
+		Username:     username,
+		Password:     password,
+	}
+	a, err := auth(params)
 	if err != nil {
 		return nil, err
 	}
 	return a.User, nil
 }
 
-func SetAuth(t, rt string) {
-	_token = t
-	_refreshToken = rt
-	_tokenDeadline = time.Time{}
+func LoadAuth(token, refreshToken string, tokenDeadline time.Time) (*Account, error) {
+	_token = token
+	_refreshToken = refreshToken
+	_tokenDeadline = tokenDeadline
+	return refreshAuth()
 }
 
-func refreshAuth() error {
+func refreshAuth() (*Account, error) {
 	if time.Now().Before(_tokenDeadline) {
-		return nil
+		return nil, nil
 	}
 	if _refreshToken == "" {
-		return fmt.Errorf("missing refresh token")
+		return nil, fmt.Errorf("missing refresh token")
 	}
-	_, err := auth("", "")
+	params := &authParams{
+		GetSecureURL: 1,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		GrantType:    "refresh_token",
+		RefreshToken: _refreshToken,
+	}
+	a, err := auth(params)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return a.User, nil
 }
 
 // download image to file (use 6.0 app-api)

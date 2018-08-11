@@ -90,7 +90,7 @@ type illustsResponse struct {
 
 func (a *AppPixivAPI) request(path string, params, data interface{}, auth bool) (err error) {
 	if auth {
-		if err := refreshAuth(); err != nil {
+		if _, err := refreshAuth(); err != nil {
 			return fmt.Errorf("refresh token failed: %v", err)
 		}
 		_, err = a.sling.New().Get(path).Set("Authorization", "Bearer "+_token).QueryStruct(params).ReceiveSuccess(data)
