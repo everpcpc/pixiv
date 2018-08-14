@@ -128,7 +128,7 @@ type userIllustsParams struct {
 }
 
 // UserIllusts type: [illust, manga]
-func (a *AppPixivAPI) UserIllusts(uid uint64, _type string, offset int) ([]Illust, error) {
+func (a *AppPixivAPI) UserIllusts(uid uint64, _type string, offset int) ([]Illust, int, error) {
 	path := "v1/user/illusts"
 	params := &userIllustsParams{
 		UserID: uid,
@@ -138,9 +138,10 @@ func (a *AppPixivAPI) UserIllusts(uid uint64, _type string, offset int) ([]Illus
 	}
 	data := &illustsResponse{}
 	if err := a.request(path, params, data, true); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return data.Illusts, nil
+	next, err := parseNextPageOffset(data.NextURL)
+	return data.Illusts, next, err
 }
 
 type userBookmarkIllustsParams struct {
@@ -152,7 +153,7 @@ type userBookmarkIllustsParams struct {
 }
 
 // UserBookmarksIllust restrict: [public, private]
-func (a *AppPixivAPI) UserBookmarksIllust(uid uint64, restrict string, maxBookmarkID int, tag string) ([]Illust, error) {
+func (a *AppPixivAPI) UserBookmarksIllust(uid uint64, restrict string, maxBookmarkID int, tag string) ([]Illust, int, error) {
 	path := "v1/user/bookmarks/illust"
 	params := &userBookmarkIllustsParams{
 		UserID:        uid,
@@ -163,9 +164,10 @@ func (a *AppPixivAPI) UserBookmarksIllust(uid uint64, restrict string, maxBookma
 	}
 	data := &illustsResponse{}
 	if err := a.request(path, params, data, true); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return data.Illusts, nil
+	next, err := parseNextPageOffset(data.NextURL)
+	return data.Illusts, next, err
 }
 
 type illustFollowParams struct {
@@ -174,7 +176,7 @@ type illustFollowParams struct {
 }
 
 // IllustFollow restrict: [public, private]
-func (a *AppPixivAPI) IllustFollow(restrict string, offset int) ([]Illust, error) {
+func (a *AppPixivAPI) IllustFollow(restrict string, offset int) ([]Illust, int, error) {
 	path := "v2/illust/follow"
 	params := &illustFollowParams{
 		Restrict: restrict,
@@ -182,7 +184,8 @@ func (a *AppPixivAPI) IllustFollow(restrict string, offset int) ([]Illust, error
 	}
 	data := &illustsResponse{}
 	if err := a.request(path, params, data, true); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return data.Illusts, nil
+	next, err := parseNextPageOffset(data.NextURL)
+	return data.Illusts, next, err
 }

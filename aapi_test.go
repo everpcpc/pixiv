@@ -37,16 +37,17 @@ func TestUserIllusts(t *testing.T) {
 	r := require.New(t)
 	r.Nil(initTest())
 	app := NewApp()
-	illusts, err := app.UserIllusts(490219, "illust", 0)
+	illusts, next, err := app.UserIllusts(490219, "illust", 0)
 	r.Nil(err)
 	r.Len(illusts, 30)
+	r.Equal(30, next)
 }
 
 func TestUserBookmarksIllust(t *testing.T) {
 	r := require.New(t)
 	r.Nil(initTest())
 	app := NewApp()
-	illusts, err := app.UserBookmarksIllust(testUID, "public", 0, "")
+	illusts, _, err := app.UserBookmarksIllust(testUID, "public", 0, "")
 	r.Nil(err)
 	r.Equal(uint64(70095856), illusts[0].ID)
 	size, err := download(illusts[0].MetaSinglePage.OriginalImageURL, ".", ".test.png", true)
@@ -58,7 +59,8 @@ func TestIllustFollow(t *testing.T) {
 	r := require.New(t)
 	r.Nil(initTest())
 	app := NewApp()
-	illusts, err := app.IllustFollow("public", 0)
+	illusts, next, err := app.IllustFollow("public", 0)
 	r.Nil(err)
 	r.Len(illusts, 30)
+	r.Equal(30, next)
 }
