@@ -7,6 +7,9 @@ import (
 )
 
 func parseNextPageOffset(s string) (int, error) {
+	if s == "" {
+		return 0, nil
+	}
 	u, err := url.Parse(s)
 	if err != nil {
 		return 0, fmt.Errorf("parse next_url error: %s {%s}", s, err)
