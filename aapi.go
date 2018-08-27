@@ -2,6 +2,7 @@ package pixiv
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/dghubble/sling"
 )
@@ -86,6 +87,9 @@ type Illust struct {
 type illustsResponse struct {
 	Illusts []Illust `json:"illusts"`
 	NextURL string   `json:"next_url"`
+}
+type illustResponse struct {
+	Illust Illust `json:"illust"`
 }
 
 func (a *AppPixivAPI) request(path string, params, data interface{}, auth bool) (err error) {
@@ -188,4 +192,32 @@ func (a *AppPixivAPI) IllustFollow(restrict string, offset int) ([]Illust, int, 
 	}
 	next, err := parseNextPageOffset(data.NextURL)
 	return data.Illusts, next, err
+}
+
+type illustDetailParams struct {
+	IllustID uint64 `url:"illust_id,omitemtpy"`
+}
+
+// IllustDetail get a detailed illust with id
+func (a *AppPixivAPI) IllustDetail(id uint64) (*Illust, error) {
+	path := "v1/illust/detail"
+	data := &illustResponse{}
+	params := &illustDetailParams{
+		IllustID: id,
+	}
+	if err := a.request(path, params, data, true); err != nil {
+		return nil, err
+	}
+	return &data.Illust, nil
+}
+
+// Download a specific picture from pixiv id
+func (a *AppPixivAPI) Download(id uint64, path string) (int64, error) {
+	illust, err := a.IllustDetail(id)
+	if err != nil {
+		return 0, err
+	}
+	url := illust.MetaSinglePage.OriginalImageURL
+	size, err := download(url, path, filepath.Base(url), false)
+	return size, err
 }
