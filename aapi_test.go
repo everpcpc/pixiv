@@ -76,7 +76,12 @@ func TestDownload(t *testing.T) {
 	r := require.New(t)
 	r.Nil(initTest())
 	app := NewApp()
-	size, err := app.Download(70095856, ".")
-	r.Nil(err)
-	r.Equal(int64(993598), size)
+	sizes, errs := app.Download(68943534, ".")
+	r.Len(sizes, 3)
+	for i := range errs {
+		r.Nil(errs[i])
+	}
+	r.Equal(int64(2748932), sizes[0])
+	r.Equal(int64(2032716), sizes[1])
+	r.Equal(int64(600670), sizes[2])
 }

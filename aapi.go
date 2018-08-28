@@ -212,12 +212,26 @@ func (a *AppPixivAPI) IllustDetail(id uint64) (*Illust, error) {
 }
 
 // Download a specific picture from pixiv id
-func (a *AppPixivAPI) Download(id uint64, path string) (int64, error) {
+func (a *AppPixivAPI) Download(id uint64, path string) ([]int64, []error) {
 	illust, err := a.IllustDetail(id)
 	if err != nil {
-		return 0, err
+		return []int64{0}, []error{err}
 	}
-	url := illust.MetaSinglePage.OriginalImageURL
-	size, err := download(url, path, filepath.Base(url), false)
-	return size, err
+	var urls []string
+	if illust.MetaSinglePage.OriginalImageURL == "" {
+		for _, img := range illust.MetaPages {
+			urls = append(urls, img.Images.Original)
+		}
+	} else {
+		urls = append(urls, illust.MetaSinglePage.OriginalImageURL)
+	}
+	var sizes []int64
+	var errs []error
+	for _, u := range urls {
+		size, err := download(u, path, filepath.Base(u), false)
+		sizes = append(sizes, size)
+		errs = append(errs, err)
+	}
+
+	return sizes, errs
 }
