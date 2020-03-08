@@ -1,6 +1,8 @@
 # pixiv
 
-[![build](https://travis-ci.org/everpcpc/pixiv.svg)](https://travis-ci.org/everpcpc/pixiv)
+![test](https://github.com/everpcpc/pixiv/workflows/test/badge.svg)
+[![codecov](https://codecov.io/gh/everpcpc/pixiv/branch/master/graph/badge.svg)](https://codecov.io/gh/everpcpc/pixiv)
+[![Go Report Card](https://goreportcard.com/badge/github.com/everpcpc/pixiv)](https://goreportcard.com/report/github.com/everpcpc/pixiv)
 [![godoc](https://img.shields.io/badge/godoc-reference-5272B4.svg)](https://godoc.org/github.com/everpcpc/pixiv)
 
 Pixiv API for Golang (with Auth supported)
