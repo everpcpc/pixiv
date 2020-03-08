@@ -23,8 +23,11 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Test
-      run: go test -v -race -covermode=atomic .
+      run: go test -v -race -covermode=atomic -coverprofile=coverage.txt .
       env:
         TOKEN: ${{ secrets.TOKEN }}
         REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
         TEST_UID: ${{ secrets.TEST_UID }}
+
+    - name: Coveralls
+      uses: codecov/codecov-action@v1
