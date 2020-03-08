@@ -24,3 +24,7 @@ jobs:
 
     - name: Test
       run: go test -v -race -covermode=atomic .
+      env:
+        TOKEN: ${{ secrets.TOKEN }}
+        REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+        TEST_UID: ${{ secrets.TEST_UID }}
