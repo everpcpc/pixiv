@@ -8,8 +8,6 @@ import (
 
 func TestAuth(t *testing.T) {
 	r := require.New(t)
-	_, err := Login("username", "password")
-	if nil != err{
-		r.EqualError(err, "Login system error: 103:pixiv ID、またはメールアドレス、パスワードが正しいかチェックしてください。")
-	}
+	_, err := Login("x", "x")
+	r.EqualError(err, "Login system error: 103:pixiv ID、またはメールアドレス、パスワードが正しいかチェックしてください。")
 }
