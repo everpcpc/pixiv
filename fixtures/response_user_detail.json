@@ -1,0 +1,61 @@
+{
+    "user": {
+        "id": 12345678,
+        "name": "testuser",
+        "account": "user_xxxx1234",
+        "profile_image_urls": {
+            "medium": "https://s.pximg.net/common/images/no_profile.png"
+        },
+        "comment": "",
+        "is_followed": false
+    },
+    "profile": {
+        "webpage": null,
+        "gender": "unknown",
+        "birth": "2020-01-01",
+        "birth_day": "01-01",
+        "birth_year": 2020,
+        "region": "日本",
+        "address_id": 0,
+        "country_code": "",
+        "job": "",
+        "job_id": 0,
+        "total_follow_users": 2,
+        "total_mypixiv_users": 0,
+        "total_illusts": 0,
+        "total_manga": 0,
+        "total_novels": 0,
+        "total_illust_bookmarks_public": 1,
+        "total_illust_series": 0,
+        "total_novel_series": 0,
+        "background_image_url": null,
+        "twitter_account": "",
+        "twitter_url": null,
+        "pawoo_url": null,
+        "is_premium": false,
+        "is_using_custom_profile_image": false
+    },
+    "profile_publicity": {
+        "gender": "public",
+        "region": "public",
+        "birth_day": "public",
+        "birth_year": "public",
+        "job": "public",
+        "pawoo": true
+    },
+    "workspace": {
+        "pc": "",
+        "monitor": "",
+        "tool": "",
+        "scanner": "",
+        "tablet": "",
+        "mouse": "",
+        "printer": "",
+        "desktop": "",
+        "music": "",
+        "desk": "",
+        "chair": "",
+        "comment": "",
+        "workspace_image_url": null
+    }
+}
