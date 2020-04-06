@@ -1,4 +1,4 @@
-module github.com/everpcpc/pixiv
+module github.com/Helo-Man/pixiv
 
 require (
 	github.com/davecgh/go-spew v1.1.0 // indirect
