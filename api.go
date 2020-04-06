@@ -1,6 +1,8 @@
 package pixiv
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,6 +16,7 @@ import (
 const (
 	clientID     = "MOBrBDS8blbauoSck0ZfDbtuzpyT"
 	clientSecret = "lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj"
+	hashSecret = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c"//get from pixiv client
 )
 
 var (
@@ -75,6 +78,12 @@ type Perror struct {
 func auth(params *authParams) (*authInfo, error) {
 	s := sling.New().Base("https://oauth.secure.pixiv.net/").Set("User-Agent", "PixivAndroidApp/5.0.64 (Android 6.0)")
 
+	localTime := time.Now().Format("2006-01-02T15:04:05+00:00")
+	clientHash := md5.Sum([]byte(localTime + hashSecret))
+	s.Set("X-Client-Time",localTime)
+	s.Set("X-Client-Hash",hex.EncodeToString(clientHash[:]))
+	//new auth method add client time in header
+
 	res := &loginResponse{
 		Response: &authInfo{
 			User: &Account{},
@@ -95,7 +104,6 @@ func auth(params *authParams) (*authInfo, error) {
 	_token = res.Response.AccessToken
 	_refreshToken = res.Response.RefreshToken
 	_tokenDeadline = time.Now().Add(time.Duration(res.Response.ExpiresIn) * time.Second)
-
 	if authHook != nil {
 		err = authHook(_token, _refreshToken, _tokenDeadline)
 	}
@@ -122,6 +130,9 @@ func Login(username, password string) (*Account, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(a.User.ID)
+	fmt.Println(a.RefreshToken)
+	fmt.Println(a.AccessToken)
 	return a.User, nil
 }
 

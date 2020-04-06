@@ -19,8 +19,15 @@ func parseNextPageOffset(s string) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("parse next_url error: %s {%s}", s, err)
 	}
+
 	offset, err := strconv.Atoi(m.Get("offset"))
+
 	if err != nil {
+		fmt.Errorf("parse next_url error: %s {%s}\n", s, err)
+		offset, err = strconv.Atoi(m.Get("max_bookmark_id"))
+	}//add max_bookmark_id check
+
+	if nil != err{
 		return 0, fmt.Errorf("parse next_url error: %s {%s}", s, err)
 	}
 	return offset, nil
