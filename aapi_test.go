@@ -1,6 +1,7 @@
 package pixiv
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -20,6 +21,7 @@ var (
 func init() {
 	if mockTest() {
 		mock = true
+		fmt.Println("=== RUNNING mock tests")
 		LoadAuth("fake_token", "fake_refresh_token", time.Time{})
 		testUID = 12345678
 		httpmock.Activate()
@@ -28,6 +30,7 @@ func init() {
 		httpmock.RegisterResponder("POST", "https://oauth.secure.pixiv.net/auth/token",
 			httpmock.NewStringResponder(200, resp))
 	} else {
+		fmt.Println("=== RUNNING real tests")
 		LoadAuth(os.Getenv("TOKEN"), os.Getenv("REFRESH_TOKEN"), time.Time{})
 		testUID, _ = strconv.ParseUint(os.Getenv("TEST_UID"), 10, 0)
 	}
@@ -37,12 +40,15 @@ func init() {
 // mockTest if one of the env not defined
 func mockTest() bool {
 	if os.Getenv("TOKEN") == "" {
+		fmt.Println("TOKEN not set")
 		return true
 	}
 	if os.Getenv("REFRESH_TOKEN") == "" {
+		fmt.Println("REFRESH_TOKEN not set")
 		return true
 	}
 	if os.Getenv("TEST_UID") == "" {
+		fmt.Println("TEST_UID not set")
 		return true
 	}
 	return false
@@ -67,7 +73,7 @@ func TestUserDetail(t *testing.T) {
 }
 
 func TestUserIllusts(t *testing.T) {
-	if mockTest() {
+	if mock {
 		resp, _ := getMockedResponse("user_illusts.json")
 		httpmock.RegisterResponder("GET", "https://app-api.pixiv.net/v1/user/illusts?filter=for_ios&type=illust&user_id=490219",
 			httpmock.NewStringResponder(200, resp))

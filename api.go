@@ -2,6 +2,7 @@ package pixiv
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -78,7 +79,7 @@ func genClientHash(clientTime string) string {
 	h := md5.New()
 	io.WriteString(h, clientTime)
 	io.WriteString(h, clientHashSecret)
-	return string(h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 func auth(params *authParams) (*authInfo, error) {
