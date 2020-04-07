@@ -1,13 +1,20 @@
 package pixiv
 
 import (
-	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/require"
 )
+
+func setupAPIMockTest(code int, responseFile string) {
+	httpmock.Activate()
+	resp, _ := getMockedResponse(responseFile)
+	httpmock.RegisterResponder("POST", "https://oauth.secure.pixiv.net/auth/token",
+		httpmock.NewStringResponder(code, resp))
+}
 
 func TestAuth(t *testing.T) {
 	username := os.Getenv("USERNAME")
@@ -15,15 +22,47 @@ func TestAuth(t *testing.T) {
 	testUID := os.Getenv("TEST_UID")
 	if username == "" || password == "" || testUID == "" {
 		testUID = "12345678"
-		fmt.Println("=== RUNNING mock tests for api")
-		httpmock.Activate()
-		resp, _ := getMockedResponse("auth.json")
-		httpmock.RegisterResponder("POST", "https://oauth.secure.pixiv.net/auth/token",
-			httpmock.NewStringResponder(200, resp))
+		setupAPIMockTest(200, "auth.json")
 	}
 
 	r := require.New(t)
 	account, err := Login(username, username)
 	r.Nil(err)
 	r.Equal(testUID, account.ID)
+
+	httpmock.DeactivateAndReset()
+}
+
+func TestLoginFail(t *testing.T) {
+	username := os.Getenv("USERNAME")
+	password := os.Getenv("PASSWORD")
+	if username == "" || password == "" {
+		setupAPIMockTest(400, "auth_invalid_password.json")
+		username = "fake_username"
+		password = "fake_password"
+	}
+
+	r := require.New(t)
+	account, err := Login(username[:5], password[:5])
+	r.Nil(account)
+	r.EqualError(err, "Login system error: 103:pixiv ID、またはメールアドレス、パスワードが正しいかチェックしてください。")
+
+	httpmock.DeactivateAndReset()
+}
+
+func TestRefreshTokenFail(t *testing.T) {
+	token := os.Getenv("TOKEN")
+	refreshToken := os.Getenv("REFRESH_TOKEN")
+	if token == "" || refreshToken == "" {
+		setupAPIMockTest(400, "auth_invalid_token.json")
+		token = "xxxxxxxx"
+		refreshToken = "xxxxxxxxxxxxxx"
+	}
+
+	r := require.New(t)
+	account, err := LoadAuth(token, refreshToken[:10], time.Time{})
+	r.Nil(account)
+	r.EqualError(err, "Login system error: Invalid refresh token")
+
+	httpmock.DeactivateAndReset()
 }

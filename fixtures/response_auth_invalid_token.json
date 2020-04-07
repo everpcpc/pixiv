@@ -1,0 +1,9 @@
+{
+    "has_error": true,
+    "errors": {
+        "system": {
+            "message": "Invalid refresh token",
+            "code": 1508
+        }
+    }
+}
