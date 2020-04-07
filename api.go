@@ -1,6 +1,7 @@
 package pixiv
 
 import (
+	"crypto/md5"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,8 +13,9 @@ import (
 )
 
 const (
-	clientID     = "MOBrBDS8blbauoSck0ZfDbtuzpyT"
-	clientSecret = "lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj"
+	clientID         = "MOBrBDS8blbauoSck0ZfDbtuzpyT"
+	clientSecret     = "lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj"
+	clientHashSecret = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c"
 )
 
 var (
@@ -72,8 +74,16 @@ type Perror struct {
 	Code    int    `json:"code"`
 }
 
+func genClientHash(clientTime string) string {
+	h := md5.New()
+	io.WriteString(h, clientTime)
+	io.WriteString(h, clientHashSecret)
+	return string(h.Sum(nil))
+}
+
 func auth(params *authParams) (*authInfo, error) {
-	s := sling.New().Base("https://oauth.secure.pixiv.net/").Set("User-Agent", "PixivAndroidApp/5.0.64 (Android 6.0)")
+	clientTime := time.Now().Format(time.RFC3339)
+	s := sling.New().Base("https://oauth.secure.pixiv.net/").Set("User-Agent", "PixivAndroidApp/5.0.64 (Android 6.0)").Set("X-Client-Time", clientTime).Set("X-Client-Hash", genClientHash(clientTime))
 
 	res := &loginResponse{
 		Response: &authInfo{
