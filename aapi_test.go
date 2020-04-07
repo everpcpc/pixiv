@@ -21,7 +21,7 @@ var (
 func init() {
 	if mockTest() {
 		mock = true
-		fmt.Println("=== RUNNING mock tests")
+		fmt.Println("=== RUNNING mock tests for aapi")
 		LoadAuth("fake_token", "fake_refresh_token", time.Time{})
 		testUID = 12345678
 		httpmock.Activate()
