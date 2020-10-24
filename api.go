@@ -84,7 +84,7 @@ func genClientHash(clientTime string) string {
 
 func auth(params *authParams) (*authInfo, error) {
 	clientTime := time.Now().Format(time.RFC3339)
-	s := sling.New().Base("https://oauth.secure.pixiv.net/").Set("User-Agent", "PixivAndroidApp/5.0.64 (Android 6.0)").Set("X-Client-Time", clientTime).Set("X-Client-Hash", genClientHash(clientTime))
+	s := sling.New().Base("https://oauth.secure.pixiv.net/").Set("User-Agent", "PixivAndroidApp/5.0.115 (Android 6.0)").Set("X-Client-Time", clientTime).Set("X-Client-Hash", genClientHash(clientTime))
 
 	res := &loginResponse{
 		Response: &authInfo{
