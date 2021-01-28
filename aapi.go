@@ -153,11 +153,20 @@ func (a *AppPixivAPI) IllustDetail(id uint64) (*Illust, error) {
 }
 
 // Download a specific picture from pixiv id
-func (a *AppPixivAPI) Download(id uint64, path string) ([]int64, []error) {
+func (a *AppPixivAPI) Download(id uint64, path string) (sizes []int64, errs []error) {
 	illust, err := a.IllustDetail(id)
 	if err != nil {
-		return []int64{0}, []error{err}
+		errs = append(errs, err)
 	}
+	if illust == nil {
+		errs = append(errs, fmt.Errorf("illust %d is nil", id))
+		return
+	}
+	if illust.MetaSinglePage == nil {
+		errs = append(errs, fmt.Errorf("illust %d has no single page", id))
+		return
+	}
+
 	var urls []string
 	if illust.MetaSinglePage.OriginalImageURL == "" {
 		for _, img := range illust.MetaPages {
@@ -166,15 +175,13 @@ func (a *AppPixivAPI) Download(id uint64, path string) ([]int64, []error) {
 	} else {
 		urls = append(urls, illust.MetaSinglePage.OriginalImageURL)
 	}
-	var sizes []int64
-	var errs []error
 	for _, u := range urls {
 		size, err := download(u, path, filepath.Base(u), false)
 		sizes = append(sizes, size)
 		errs = append(errs, err)
 	}
 
-	return sizes, errs
+	return
 }
 
 type illustCommentsParams struct {
@@ -265,7 +272,7 @@ type illustRecommendedParams struct {
 //contentType: [illust, manga]
 func (a *AppPixivAPI) IllustRecommended(contentType string, includeRankingLabel bool, filter string, maxBookmarkIDForRecommended string, minBookmarkIDForRecentIllust string, offset int, includeRankingIllusts bool, bookmarkIllustIDs []string, includePrivacyPolicy string, requireAuth bool) (*IllustRecommended, error) {
 	path := "v1/illust/recommended-nologin"
-	if requireAuth == true {
+	if requireAuth {
 		path = "v1/illust/recommended"
 	}
 
