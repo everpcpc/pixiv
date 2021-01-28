@@ -173,9 +173,9 @@ func TestDownload(t *testing.T) {
 	}
 	r.Len(sizes, 3)
 
-	r.Equal(int64(2748932), sizes[0])
-	r.Equal(int64(2032716), sizes[1])
-	r.Equal(int64(600670), sizes[2])
+	r.Equal(int64(2742014), sizes[0])
+	r.Equal(int64(2008306), sizes[1])
+	r.Equal(int64(560294), sizes[2])
 
 	if mock {
 		httpmock.DeactivateAndReset()
