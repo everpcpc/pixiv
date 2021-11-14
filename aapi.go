@@ -3,6 +3,7 @@ package pixiv
 import (
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"github.com/dghubble/sling"
 )
@@ -13,7 +14,8 @@ const (
 
 // AppPixivAPI -- App-API (6.x - app-api.pixiv.net)
 type AppPixivAPI struct {
-	sling *sling.Sling
+	sling   *sling.Sling
+	timeout time.Duration
 }
 
 func NewApp() *AppPixivAPI {
@@ -31,6 +33,11 @@ func (a *AppPixivAPI) request(path string, params, data interface{}, auth bool) 
 		_, err = a.sling.New().Get(path).QueryStruct(params).ReceiveSuccess(data)
 	}
 	return err
+}
+
+func (a *AppPixivAPI) WithDownloadTimeout(timeout time.Duration) *AppPixivAPI {
+	a.timeout = timeout
+	return a
 }
 
 func (a *AppPixivAPI) post(path string, params, data interface{}, auth bool) (err error) {
@@ -176,7 +183,7 @@ func (a *AppPixivAPI) Download(id uint64, path string) (sizes []int64, errs []er
 		urls = append(urls, illust.MetaSinglePage.OriginalImageURL)
 	}
 	for _, u := range urls {
-		size, err := download(u, path, filepath.Base(u), false)
+		size, err := download(u, path, filepath.Base(u), false, a.timeout)
 		sizes = append(sizes, size)
 		errs = append(errs, err)
 	}
