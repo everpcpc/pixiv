@@ -2,10 +2,13 @@ package pixiv
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
 	"path/filepath"
 	"time"
 
 	"github.com/dghubble/sling"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -16,6 +19,7 @@ const (
 type AppPixivAPI struct {
 	sling   *sling.Sling
 	timeout time.Duration
+	proxy   *url.URL
 }
 
 func NewApp() *AppPixivAPI {
@@ -37,6 +41,11 @@ func (a *AppPixivAPI) request(path string, params, data interface{}, auth bool) 
 
 func (a *AppPixivAPI) WithDownloadTimeout(timeout time.Duration) *AppPixivAPI {
 	a.timeout = timeout
+	return a
+}
+
+func (a *AppPixivAPI) WithDownloadProxy(proxy *url.URL) *AppPixivAPI {
+	a.proxy = proxy
 	return a
 }
 
@@ -160,17 +169,18 @@ func (a *AppPixivAPI) IllustDetail(id uint64) (*Illust, error) {
 }
 
 // Download a specific picture from pixiv id
-func (a *AppPixivAPI) Download(id uint64, path string) (sizes []int64, errs []error) {
+func (a *AppPixivAPI) Download(id uint64, path string) (sizes []int64, err error) {
 	illust, err := a.IllustDetail(id)
 	if err != nil {
-		errs = append(errs, err)
+		err = errors.Wrapf(err, "illust %d detail error", id)
+		return
 	}
 	if illust == nil {
-		errs = append(errs, fmt.Errorf("illust %d is nil", id))
+		err = errors.Wrapf(err, "illust %d is nil", id)
 		return
 	}
 	if illust.MetaSinglePage == nil {
-		errs = append(errs, fmt.Errorf("illust %d has no single page", id))
+		err = errors.Wrapf(err, "illust %d has no single page", id)
 		return
 	}
 
@@ -182,10 +192,24 @@ func (a *AppPixivAPI) Download(id uint64, path string) (sizes []int64, errs []er
 	} else {
 		urls = append(urls, illust.MetaSinglePage.OriginalImageURL)
 	}
+
+	dclient := &http.Client{}
+	if a.proxy != nil {
+		dclient.Transport = &http.Transport{
+			Proxy: http.ProxyURL(a.proxy),
+		}
+	}
+	if a.timeout != 0 {
+		dclient.Timeout = a.timeout
+	}
+
 	for _, u := range urls {
-		size, err := download(u, path, filepath.Base(u), false, a.timeout)
+		size, e := download(dclient, u, path, filepath.Base(u), false)
+		if err != nil {
+			err = errors.Wrapf(e, "download url %s failed", u)
+			return
+		}
 		sizes = append(sizes, size)
-		errs = append(errs, err)
 	}
 
 	return

@@ -165,7 +165,7 @@ func refreshAuth() (*Account, error) {
 }
 
 // download image to file (use 6.0 app-api)
-func download(url, path, name string, replace bool, timeout time.Duration) (int64, error) {
+func download(client *http.Client, url, path, name string, replace bool) (int64, error) {
 	if path == "" {
 		return 0, fmt.Errorf("download path needed")
 	}
@@ -184,7 +184,6 @@ func download(url, path, name string, replace bool, timeout time.Duration) (int6
 	}
 	defer output.Close()
 
-	client := &http.Client{Timeout: timeout}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return 0, err
