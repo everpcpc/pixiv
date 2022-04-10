@@ -3,6 +3,7 @@ package pixiv
 type UserImages struct {
 	Medium string `json:"medium"`
 }
+
 type User struct {
 	ID         uint64 `json:"id"`
 	Name       string `json:"name"`
@@ -12,6 +13,7 @@ type User struct {
 
 	ProfileImages *UserImages `json:"profile_image_urls"`
 }
+
 type UserDetail struct {
 	User             *User             `json:"user"`
 	Profile          *Profile          `json:"profile"`
