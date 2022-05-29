@@ -195,6 +195,10 @@ func download(client *http.Client, url, path, name string, replace bool) (int64,
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return 0, fmt.Errorf("download failed: %s", resp.Status)
+	}
+
 	n, err := io.Copy(output, resp.Body)
 	if err != nil {
 		return 0, err
