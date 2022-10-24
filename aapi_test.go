@@ -1,7 +1,6 @@
 package pixiv
 
 import (
-	"io/ioutil"
 	"os"
 	"strconv"
 	"testing"
@@ -53,7 +52,7 @@ func setupAPPTest() (uint64, bool, *AppPixivAPI) {
 }
 
 func getMockedResponse(file string) (string, error) {
-	f, err := ioutil.ReadFile("fixtures/response_" + file)
+	f, err := os.ReadFile("fixtures/response_" + file)
 	return string(f), err
 }
 
@@ -155,13 +154,13 @@ func TestDownload(t *testing.T) {
 		resp, _ := getMockedResponse("illust_detail.json")
 		httpmock.RegisterResponder("GET", "https://app-api.pixiv.net/v1/illust/detail?illust_id=68943534",
 			httpmock.NewStringResponder(200, resp))
-		p0, _ := ioutil.ReadFile("fixtures/68943534_p0.jpg")
+		p0, _ := os.ReadFile("fixtures/68943534_p0.jpg")
 		httpmock.RegisterResponder("GET", "https://i.pximg.net/img-original/img/2018/05/27/12/14/11/68943534_p0.jpg",
 			httpmock.NewBytesResponder(200, p0))
-		p1, _ := ioutil.ReadFile("fixtures/68943534_p1.jpg")
+		p1, _ := os.ReadFile("fixtures/68943534_p1.jpg")
 		httpmock.RegisterResponder("GET", "https://i.pximg.net/img-original/img/2018/05/27/12/14/11/68943534_p1.jpg",
 			httpmock.NewBytesResponder(200, p1))
-		p2, _ := ioutil.ReadFile("fixtures/68943534_p2.jpg")
+		p2, _ := os.ReadFile("fixtures/68943534_p2.jpg")
 		httpmock.RegisterResponder("GET", "https://i.pximg.net/img-original/img/2018/05/27/12/14/11/68943534_p2.jpg",
 			httpmock.NewBytesResponder(200, p2))
 	}
