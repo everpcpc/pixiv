@@ -1,0 +1,23 @@
+{
+    "response": {
+        "access_token": "xxxxxxxxxxxxxxxxxxx",
+        "expires_in": 3600,
+        "token_type": "bearer",
+        "scope": "",
+        "refresh_token": "xxxxxxxxxxx",
+        "user": {
+            "profile_image_urls": {
+                "px_16x16": "https://s.pximg.net/common/images/no_profile_ss.png",
+                "px_50x50": "https://s.pximg.net/common/images/no_profile_s.png",
+                "px_170x170": "https://s.pximg.net/common/images/no_profile.png"
+            },
+            "id": "12345678",
+            "name": "testuser",
+            "account": "user_xxxx1234",
+            "mail_address": "test@example.com",
+            "is_premium": false,
+            "x_restrict": 0,
+            "is_mail_authorized": true
+        }
+    }
+}

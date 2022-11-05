@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/dghubble/sling"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -140,11 +141,11 @@ func LoadAuth(token, refreshToken string, tokenDeadline time.Time) (*Account, er
 	_token = token
 	_refreshToken = refreshToken
 	_tokenDeadline = tokenDeadline
-	return refreshAuth()
+	return refreshAuth(true)
 }
 
-func refreshAuth() (*Account, error) {
-	if time.Now().Before(_tokenDeadline) {
+func refreshAuth(force bool) (*Account, error) {
+	if !force && time.Now().Before(_tokenDeadline) {
 		return nil, nil
 	}
 	if _refreshToken == "" {
@@ -159,7 +160,7 @@ func refreshAuth() (*Account, error) {
 	}
 	a, err := auth(params)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "refresh token")
 	}
 	return a.User, nil
 }
