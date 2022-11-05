@@ -17,11 +17,17 @@ func parseNextPageOffset(s string) (int, error) {
 
 	m, err := url.ParseQuery(u.RawQuery)
 	if err != nil {
-		return 0, fmt.Errorf("parse next_url error: %s {%s}", s, err)
+		return 0, fmt.Errorf("parse next_url raw query error: %s {%s}", s, err)
 	}
-	offset, err := strconv.Atoi(m.Get("offset"))
+
+	offsetParam := m.Get("offset")
+	if offsetParam == "" {
+		return 0, nil
+	}
+
+	offset, err := strconv.Atoi(offsetParam)
 	if err != nil {
-		return 0, fmt.Errorf("parse next_url error: %s {%s}", s, err)
+		return 0, fmt.Errorf("getting offset from url: %s {%s}", s, err)
 	}
 	return offset, nil
 }
