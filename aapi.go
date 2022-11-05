@@ -29,7 +29,7 @@ func NewApp() *AppPixivAPI {
 
 func (a *AppPixivAPI) request(path string, params, data interface{}, auth bool) (err error) {
 	if auth {
-		if _, err := refreshAuth(); err != nil {
+		if _, err := refreshAuth(false); err != nil {
 			return fmt.Errorf("refresh token failed: %v", err)
 		}
 		_, err = a.sling.New().Get(path).Set("Authorization", "Bearer "+_token).QueryStruct(params).ReceiveSuccess(data)
@@ -51,7 +51,7 @@ func (a *AppPixivAPI) WithDownloadProxy(proxy *url.URL) *AppPixivAPI {
 
 func (a *AppPixivAPI) post(path string, params, data interface{}, auth bool) (err error) {
 	if auth {
-		if _, err := refreshAuth(); err != nil {
+		if _, err := refreshAuth(false); err != nil {
 			return fmt.Errorf("refresh token failed: %v", err)
 		}
 		_, err = a.sling.New().Post(path).Set("Authorization", "Bearer "+_token).BodyForm(params).ReceiveSuccess(data)
@@ -300,7 +300,7 @@ type illustRecommendedParams struct {
 
 // IllustRecommended Home Recommendation
 //
-//contentType: [illust, manga]
+// contentType: [illust, manga]
 func (a *AppPixivAPI) IllustRecommended(contentType string, includeRankingLabel bool, filter string, maxBookmarkIDForRecommended string, minBookmarkIDForRecentIllust string, offset int, includeRankingIllusts bool, bookmarkIllustIDs []string, includePrivacyPolicy string, requireAuth bool) (*IllustRecommended, error) {
 	path := "v1/illust/recommended-nologin"
 	if requireAuth {
@@ -383,6 +383,7 @@ type searchIllustParams struct {
 // SearchIllust search for
 //
 // searchTarget - Search type
+//
 //	"partial_match_for_tags"  - The label part is consistent
 //	"exact_match_for_tags"    - The labels are exactly the same
 //	"title_and_caption"       - Title description
