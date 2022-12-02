@@ -48,7 +48,8 @@ func setupAPPTest() (uint64, bool, *AppPixivAPI) {
 	} else {
 		testUID = setupAPPRealTest()
 	}
-	return testUID, mock, NewApp()
+	os.MkdirAll("tmp", 0755)
+	return testUID, mock, NewApp().WithTmpdir("tmp")
 }
 
 func getMockedResponse(file string) (string, error) {

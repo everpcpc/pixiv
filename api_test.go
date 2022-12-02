@@ -67,7 +67,7 @@ func TestLoginFail(t *testing.T) {
 	r := require.New(t)
 	account, err := Login(username[:5], password[:5])
 	r.Nil(account)
-	r.EqualError(err, "Login system error: 103:pixiv ID、またはメールアドレス、パスワードが正しいかチェックしてください。")
+	r.EqualError(err, "login failed: Login system error: 103:pixiv ID、またはメールアドレス、パスワードが正しいかチェックしてください。")
 
 	httpmock.DeactivateAndReset()
 }
