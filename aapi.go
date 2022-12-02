@@ -20,6 +20,7 @@ type AppPixivAPI struct {
 	sling   *sling.Sling
 	timeout time.Duration
 	proxy   *url.URL
+	tmpDir  string
 }
 
 func NewApp() *AppPixivAPI {
@@ -46,6 +47,11 @@ func (a *AppPixivAPI) WithDownloadTimeout(timeout time.Duration) *AppPixivAPI {
 
 func (a *AppPixivAPI) WithDownloadProxy(proxy *url.URL) *AppPixivAPI {
 	a.proxy = proxy
+	return a
+}
+
+func (a *AppPixivAPI) WithTmpdir(dir string) *AppPixivAPI {
+	a.tmpDir = dir
 	return a
 }
 
@@ -204,7 +210,7 @@ func (a *AppPixivAPI) Download(id uint64, path string) (sizes []int64, err error
 	}
 
 	for _, u := range urls {
-		size, e := download(dclient, u, path, filepath.Base(u), false)
+		size, e := download(dclient, u, path, filepath.Base(u), a.tmpDir, false)
 		if e != nil {
 			err = errors.Wrapf(e, "download url %s failed", u)
 			return

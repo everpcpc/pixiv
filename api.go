@@ -97,7 +97,7 @@ func auth(params *authParams) (*authInfo, error) {
 	}
 	_, err := s.New().Post("auth/token").BodyForm(params).Receive(res, loginErr)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "auth request failed")
 	}
 	if loginErr.HasError {
 		for k, v := range loginErr.Errors {
@@ -132,7 +132,7 @@ func Login(username, password string) (*Account, error) {
 	}
 	a, err := auth(params)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "login failed")
 	}
 	return a.User, nil
 }
@@ -166,7 +166,7 @@ func refreshAuth(force bool) (*Account, error) {
 }
 
 // download image to file (use 6.0 app-api)
-func download(client *http.Client, url, path, name string, replace bool) (int64, error) {
+func download(client *http.Client, url, path, name, tmpdir string, replace bool) (int64, error) {
 	if path == "" {
 		return 0, fmt.Errorf("download path needed")
 	}
@@ -175,24 +175,25 @@ func download(client *http.Client, url, path, name string, replace bool) (int64,
 	}
 	fullPath := filepath.Join(path, name)
 
-	if _, err := os.Stat(fullPath); err == nil {
-		return 0, nil
+	if !replace {
+		if _, err := os.Stat(fullPath); err == nil {
+			return 0, nil
+		}
 	}
 
-	output, err := os.Create(fullPath)
+	tmpFile, err := os.CreateTemp(tmpdir, "pixiv-*")
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "create temp file failed")
 	}
-	defer output.Close()
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "create request failed")
 	}
 	req.Header.Add("Referer", apiBase)
 	resp, err := client.Do(req)
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "request failed")
 	}
 	defer resp.Body.Close()
 
@@ -200,9 +201,20 @@ func download(client *http.Client, url, path, name string, replace bool) (int64,
 		return 0, fmt.Errorf("download failed: %s", resp.Status)
 	}
 
-	n, err := io.Copy(output, resp.Body)
+	n, err := io.Copy(tmpFile, resp.Body)
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "download failed")
 	}
+
+	err = tmpFile.Close()
+	if err != nil {
+		return 0, errors.Wrap(err, "close temp file failed")
+	}
+
+	err = os.Rename(tmpFile.Name(), fullPath)
+	if err != nil {
+		return 0, errors.Wrap(err, "rename temp file failed")
+	}
+
 	return n, nil
 }
