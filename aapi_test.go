@@ -144,6 +144,10 @@ func TestIllustDetail(t *testing.T) {
 	r.Nil(err)
 	r.Equal(uint64(68943534), illust.ID)
 
+	tt, err := time.Parse(time.RFC3339, "2018-05-27T12:14:11+09:00")
+	r.Nil(err)
+	r.Equal(tt, illust.CreateDate)
+
 	if mock {
 		httpmock.DeactivateAndReset()
 	}

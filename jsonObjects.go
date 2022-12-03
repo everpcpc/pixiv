@@ -1,5 +1,7 @@
 package pixiv
 
+import "time"
+
 type UserImages struct {
 	Medium string `json:"medium"`
 }
@@ -100,7 +102,7 @@ type Illust struct {
 	User           *User           `json:"user"`
 	Tags           []Tag           `json:"tags"`
 	Tools          []string        `json:"tools"`
-	CreateData     string          `json:"create_data"`
+	CreateDate     time.Time       `json:"create_date"`
 	PageCount      int             `json:"page_count"`
 	Width          int             `json:"width"`
 	Height         int             `json:"height"`
