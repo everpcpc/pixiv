@@ -1,7 +1,7 @@
 # pixiv
 
-![test](https://github.com/everpcpc/pixiv/workflows/test/badge.svg?branch=master&event=push)
-[![codecov](https://codecov.io/gh/everpcpc/pixiv/branch/master/graph/badge.svg)](https://codecov.io/gh/everpcpc/pixiv)
+![test](https://github.com/everpcpc/pixiv/workflows/test/badge.svg?branch=main&event=push)
+[![codecov](https://codecov.io/gh/everpcpc/pixiv/branch/main/graph/badge.svg)](https://codecov.io/gh/everpcpc/pixiv)
 [![Go Report Card](https://goreportcard.com/badge/github.com/everpcpc/pixiv)](https://goreportcard.com/report/github.com/everpcpc/pixiv)
 [![godoc](https://img.shields.io/badge/godoc-reference-5272B4.svg)](https://godoc.org/github.com/everpcpc/pixiv)
 
