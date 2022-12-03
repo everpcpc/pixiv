@@ -181,7 +181,9 @@ func (a *AppPixivAPI) IllustDetail(id uint64) (*Illust, error) {
 }
 
 // Download a specific picture from pixiv id
-func (a *AppPixivAPI) Download(id uint64, path string) (sizes []int64, err error) {
+// @target: string, download path
+// @target: func(*Illust) string, download path generator
+func (a *AppPixivAPI) Download(id uint64, target any) (sizes []int64, err error) {
 	illust, err := a.IllustDetail(id)
 	if err != nil {
 		err = errors.Wrapf(err, "illust %d detail error", id)
@@ -205,6 +207,17 @@ func (a *AppPixivAPI) Download(id uint64, path string) (sizes []int64, err error
 		urls = append(urls, illust.MetaSinglePage.OriginalImageURL)
 	}
 
+	var path string
+	switch t := target.(type) {
+	case string:
+		path = t
+	case func(*Illust) string:
+		path = t(illust)
+	default:
+		err = errors.New("target must be string or func(*Illust) string")
+		return
+	}
+
 	for _, u := range urls {
 		size, e := download(a.downloadClient, u, path, filepath.Base(u), a.tmpDir, false)
 		if e != nil {
@@ -213,7 +226,6 @@ func (a *AppPixivAPI) Download(id uint64, path string) (sizes []int64, err error
 		}
 		sizes = append(sizes, size)
 	}
-
 	return
 }
 
