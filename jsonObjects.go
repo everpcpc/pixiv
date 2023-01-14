@@ -117,6 +117,7 @@ type Illust struct {
 	Visible        bool            `json:"visible"`
 	IsMuted        bool            `json:"is_muted"`
 	TotalComments  int             `json:"total_comments"`
+	IllustAIType   IllustAIType    `json:"illust_ai_type"`
 }
 
 type Series struct {
@@ -357,3 +358,11 @@ type PixivisionSubcategory struct {
 	ImageURL     string `json:"image_url"`
 	BigImageURL  string `json:"big_image_url"`
 }
+
+type IllustAIType int
+
+const (
+	IllustAITypeNone IllustAIType = iota
+	IllustAITypeOriginal
+	IllustAITypeAIGenerated
+)
