@@ -130,7 +130,7 @@ func (a *AppPixivAPI) UserBookmarksIllust(uid uint64, restrict string, maxBookma
 	path := "v1/user/bookmarks/illust"
 	params := &userBookmarkIllustsParams{
 		UserID:        uid,
-		Restrict:      "public",
+		Restrict:      restrict,
 		Filter:        "for_ios",
 		MaxBookmarkID: maxBookmarkID,
 		Tag:           tag,
