@@ -20,7 +20,7 @@ func parseNextPageOffset(s string) (int, error) {
 		return 0, fmt.Errorf("parse next_url raw query error: %s {%s}", s, err)
 	}
 
-	offsetParam := m.Get("offset")
+	offsetParam := m.Get("max_bookmark_id")
 	if offsetParam == "" {
 		return 0, nil
 	}
