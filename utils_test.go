@@ -8,7 +8,7 @@ import (
 
 func TestParseNextPageURL(t *testing.T) {
 	r := require.New(t)
-	next, err := parseNextPageOffset("https://app-api.pixiv.net/v2/illust/follow?restrict=public&offset=30")
+	next, err := parseNextPageOffset("https://app-api.pixiv.net/v1/user/bookmarks/illust?filter=for_ios&restrict=private&user_id=60984430&max_bookmark_id=21354656694")
 	r.Nil(err)
-	r.Equal(30, next)
+	r.Equal(21354656694, next)
 }

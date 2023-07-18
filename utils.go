@@ -20,9 +20,12 @@ func parseNextPageOffset(s string) (int, error) {
 		return 0, fmt.Errorf("parse next_url raw query error: %s {%s}", s, err)
 	}
 
-	offsetParam := m.Get("offset")
+	offsetParam := m.Get("max_bookmark_id")
 	if offsetParam == "" {
-		return 0, nil
+		offsetParam = m.Get("offset")
+		if offsetParam == "" {
+			return 0, fmt.Errorf("offset param omitted: %s {%s}", offsetParam, err)
+		}
 	}
 
 	offset, err := strconv.Atoi(offsetParam)

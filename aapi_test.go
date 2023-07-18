@@ -95,17 +95,17 @@ func TestUserIllusts(t *testing.T) {
 }
 
 func TestUserBookmarksIllust(t *testing.T) {
-	testUID, mock, app := setupAPPTest()
+	_, mock, app := setupAPPTest()
 	if mock {
 		resp, _ := getMockedResponse("user_bookmarks_illust.json")
-		httpmock.RegisterResponder("GET", "https://app-api.pixiv.net/v1/user/bookmarks/illust?filter=for_ios&restrict=public&user_id=12345678",
+		httpmock.RegisterResponder("GET", "https://app-api.pixiv.net/v1/user/bookmarks/illust?filter=for_ios&restrict=public&user_id=490219",
 			httpmock.NewStringResponder(200, resp))
 	}
 
 	r := require.New(t)
-	illusts, _, err := app.UserBookmarksIllust(testUID, "public", 0, "")
+	illusts, _, err := app.UserBookmarksIllust(490219, "public", 0, "")
 	r.Nil(err)
-	r.Equal(uint64(70095856), illusts[0].ID)
+	r.Equal(uint64(100363262), illusts[0].ID)
 
 	if mock {
 		httpmock.DeactivateAndReset()
