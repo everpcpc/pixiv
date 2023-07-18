@@ -25,7 +25,7 @@ func parseNextPageOffset(s, field string) (int, error) {
 
 	offsetParam := m.Get(field)
 	if offsetParam == "" {
-		return 0, fmt.Errorf("offset param omitted: %s {%s}", field, err)
+		return 0, fmt.Errorf("offset param omitted: %s", field)
 	}
 
 	offset, err := strconv.Atoi(offsetParam)
