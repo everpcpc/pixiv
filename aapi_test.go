@@ -135,16 +135,16 @@ func TestIllustDetail(t *testing.T) {
 	_, mock, app := setupAPPTest()
 	if mock {
 		resp, _ := getMockedResponse("illust_detail.json")
-		httpmock.RegisterResponder("GET", "https://app-api.pixiv.net/v1/illust/detail?illust_id=68943534",
+		httpmock.RegisterResponder("GET", "https://app-api.pixiv.net/v1/illust/detail?illust_id=104714396",
 			httpmock.NewStringResponder(200, resp))
 	}
 
 	r := require.New(t)
-	illust, err := app.IllustDetail(68943534)
+	illust, err := app.IllustDetail(104714396)
 	r.Nil(err)
-	r.Equal(uint64(68943534), illust.ID)
+	r.Equal(uint64(104714396), illust.ID)
 
-	tt, err := time.Parse(time.RFC3339, "2018-05-27T12:14:11+09:00")
+	tt, err := time.Parse(time.RFC3339, "2023-01-22T10:02:20+09:00")
 	r.Nil(err)
 	r.Equal(tt, illust.CreateDate)
 
@@ -157,27 +157,27 @@ func TestDownload(t *testing.T) {
 	_, mock, app := setupAPPTest()
 	if mock {
 		resp, _ := getMockedResponse("illust_detail.json")
-		httpmock.RegisterResponder("GET", "https://app-api.pixiv.net/v1/illust/detail?illust_id=68943534",
+		httpmock.RegisterResponder("GET", "https://app-api.pixiv.net/v1/illust/detail?illust_id=104714396",
 			httpmock.NewStringResponder(200, resp))
-		p0, _ := os.ReadFile("fixtures/68943534_p0.jpg")
-		httpmock.RegisterResponder("GET", "https://i.pximg.net/img-original/img/2018/05/27/12/14/11/68943534_p0.jpg",
+		p0, _ := os.ReadFile("fixtures/104714396_p0.jpg")
+		httpmock.RegisterResponder("GET", "https://i.pximg.net/img-original/img/2023/01/22/10/02/20/104714396_p0.jpg",
 			httpmock.NewBytesResponder(200, p0))
-		p1, _ := os.ReadFile("fixtures/68943534_p1.jpg")
-		httpmock.RegisterResponder("GET", "https://i.pximg.net/img-original/img/2018/05/27/12/14/11/68943534_p1.jpg",
+		p1, _ := os.ReadFile("fixtures/104714396_p1.jpg")
+		httpmock.RegisterResponder("GET", "https://i.pximg.net/img-original/img/2023/01/22/10/02/20/104714396_p1.jpg",
 			httpmock.NewBytesResponder(200, p1))
-		p2, _ := os.ReadFile("fixtures/68943534_p2.jpg")
-		httpmock.RegisterResponder("GET", "https://i.pximg.net/img-original/img/2018/05/27/12/14/11/68943534_p2.jpg",
+		p2, _ := os.ReadFile("fixtures/104714396_p2.jpg")
+		httpmock.RegisterResponder("GET", "https://i.pximg.net/img-original/img/2023/01/22/10/02/20/104714396_p2.jpg",
 			httpmock.NewBytesResponder(200, p2))
 	}
 
 	r := require.New(t)
-	sizes, err := app.Download(68943534, ".")
+	sizes, err := app.Download(104714396, ".")
 	r.Nil(err)
 	r.Len(sizes, 3)
 
-	r.Equal(int64(2742014), sizes[0])
-	r.Equal(int64(2008306), sizes[1])
-	r.Equal(int64(560294), sizes[2])
+	r.Equal(int64(182954), sizes[0])
+	r.Equal(int64(154095), sizes[1])
+	r.Equal(int64(154825), sizes[2])
 
 	if mock {
 		httpmock.DeactivateAndReset()
