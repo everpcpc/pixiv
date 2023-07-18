@@ -11,6 +11,9 @@ import (
 
 const (
 	apiBase = "https://app-api.pixiv.net/"
+
+	OffsetFieldMaxBookmarkID = "max_bookmark_id"
+	OffsetFieldOffset        = "offset"
 )
 
 // AppPixivAPI -- App-API (6.x - app-api.pixiv.net)
@@ -113,7 +116,7 @@ func (a *AppPixivAPI) UserIllusts(uid uint64, _type string, offset int) ([]Illus
 	if err := a.request(path, params, data, true); err != nil {
 		return nil, 0, err
 	}
-	next, err := parseNextPageOffset(data.NextURL)
+	next, err := parseNextPageOffset(data.NextURL, OffsetFieldOffset)
 	return data.Illusts, next, err
 }
 
@@ -139,7 +142,7 @@ func (a *AppPixivAPI) UserBookmarksIllust(uid uint64, restrict string, maxBookma
 	if err := a.request(path, params, data, true); err != nil {
 		return nil, 0, err
 	}
-	next, err := parseNextPageOffset(data.NextURL)
+	next, err := parseNextPageOffset(data.NextURL, OffsetFieldMaxBookmarkID)
 	return data.Illusts, next, err
 }
 
@@ -159,7 +162,7 @@ func (a *AppPixivAPI) IllustFollow(restrict string, offset int) ([]Illust, int, 
 	if err := a.request(path, params, data, true); err != nil {
 		return nil, 0, err
 	}
-	next, err := parseNextPageOffset(data.NextURL)
+	next, err := parseNextPageOffset(data.NextURL, OffsetFieldOffset)
 	return data.Illusts, next, err
 }
 

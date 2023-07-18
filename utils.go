@@ -6,7 +6,10 @@ import (
 	"strconv"
 )
 
-func parseNextPageOffset(s string) (int, error) {
+// parseNextPageOffset parses next_url and returns the offset
+//
+// field is either "max_bookmark_id" or "offset"
+func parseNextPageOffset(s, field string) (int, error) {
 	if s == "" {
 		return 0, nil
 	}
@@ -20,12 +23,9 @@ func parseNextPageOffset(s string) (int, error) {
 		return 0, fmt.Errorf("parse next_url raw query error: %s {%s}", s, err)
 	}
 
-	offsetParam := m.Get("max_bookmark_id")
+	offsetParam := m.Get(field)
 	if offsetParam == "" {
-		offsetParam = m.Get("offset")
-		if offsetParam == "" {
-			return 0, fmt.Errorf("offset param omitted: %s {%s}", offsetParam, err)
-		}
+		return 0, fmt.Errorf("offset param omitted: %s {%s}", field, err)
 	}
 
 	offset, err := strconv.Atoi(offsetParam)
