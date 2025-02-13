@@ -218,3 +218,27 @@ func download(client *http.Client, url, path, name, tmpdir string, replace bool)
 
 	return n, nil
 }
+
+// downloadBytes just like download but return data directly
+func downloadBytes(client *http.Client, url string) ([]byte, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "create request failed")
+	}
+	req.Header.Add("Referer", apiBase)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "request failed")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("download failed: %s", resp.Status)
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "download failed")
+	}
+	return b, nil
+}

@@ -232,6 +232,42 @@ func (a *AppPixivAPI) Download(id uint64, target any) (sizes []int64, err error)
 	return
 }
 
+// DownloadBytes just like Download but return data directly
+func (a *AppPixivAPI) DownloadBytes(id uint64) (datas [][]byte, err error) {
+	illust, err := a.IllustDetail(id)
+	if err != nil {
+		err = errors.Wrapf(err, "illust %d detail error", id)
+		return
+	}
+	if illust == nil {
+		err = errors.Wrapf(err, "illust %d is nil", id)
+		return
+	}
+	if illust.MetaSinglePage == nil {
+		err = errors.Wrapf(err, "illust %d has no single page", id)
+		return
+	}
+
+	var urls []string
+	if illust.MetaSinglePage.OriginalImageURL == "" {
+		for _, img := range illust.MetaPages {
+			urls = append(urls, img.Images.Original)
+		}
+	} else {
+		urls = append(urls, illust.MetaSinglePage.OriginalImageURL)
+	}
+
+	for _, u := range urls {
+		data, e := downloadBytes(a.downloadClient, u)
+		if e != nil {
+			err = errors.Wrapf(e, "download url %s failed", u)
+			return
+		}
+		datas = append(datas, data)
+	}
+	return
+}
+
 type illustCommentsParams struct {
 	IllustID             uint64 `url:"illust_id,omitemtpy"`
 	Offset               int    `url:"offset,omitempty"`
