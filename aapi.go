@@ -1,6 +1,7 @@
 package pixiv
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -14,6 +15,8 @@ const (
 
 	OffsetFieldMaxBookmarkID = "max_bookmark_id"
 	OffsetFieldOffset        = "offset"
+
+	defaultThreads = 1
 )
 
 // AppPixivAPI -- App-API (6.x - app-api.pixiv.net)
@@ -23,6 +26,9 @@ type AppPixivAPI struct {
 	downloadClient *http.Client
 
 	tmpDir string
+
+	// [TODO] move to global var?
+	threads int // num threads of concurrent download
 }
 
 func NewApp() *AppPixivAPI {
@@ -30,6 +36,8 @@ func NewApp() *AppPixivAPI {
 	return &AppPixivAPI{
 		sling:          s,
 		downloadClient: http.DefaultClient,
+
+		threads: defaultThreads,
 	}
 }
 
@@ -183,6 +191,35 @@ func (a *AppPixivAPI) IllustDetail(id uint64) (*Illust, error) {
 	return &data.Illust, nil
 }
 
+func (a *AppPixivAPI) SetThreads(threads int) *AppPixivAPI {
+	// const maxThreads = 16 // [TODO]? limit the maximum threads allowed
+	if threads > 0 {
+		a.threads = threads
+	}
+	return a
+}
+
+type DownloadResult struct {
+	Img Image
+	Err error
+}
+
+// DownloadIllustIter ensures the original order of [Illust.MetaPages]
+//
+// [TODO] move to iter.Seq2[Image, error] after bumping to go1.23
+func (a *AppPixivAPI) DownloadIllustIter(ctx context.Context, illust *Illust, size Size) <-chan DownloadResult {
+	items := newDownloadItems(illustGetUrls(illust, size))
+	dl := newDownloader(ctx, a.downloadClient, a.threads, items)
+	return dl.downloadIter()
+}
+
+// DownloadIllustAsync downloads completely asynchronously via callback
+func (a *AppPixivAPI) DownloadIllustAsync(ctx context.Context, illust *Illust, size Size, receiverF func(int, DownloadResult)) {
+	items := newDownloadItems(illustGetUrls(illust, size))
+	dl := newDownloader(ctx, a.downloadClient, a.threads, items)
+	dl.downloadTo(receiverF)
+}
+
 // Download a specific picture from pixiv id
 // @target: string, download path
 // @target: func(*Illust) string, download path generator
@@ -201,14 +238,7 @@ func (a *AppPixivAPI) Download(id uint64, target any) (sizes []int64, err error)
 		return
 	}
 
-	var urls []string
-	if illust.MetaSinglePage.OriginalImageURL == "" {
-		for _, img := range illust.MetaPages {
-			urls = append(urls, img.Images.Original)
-		}
-	} else {
-		urls = append(urls, illust.MetaSinglePage.OriginalImageURL)
-	}
+	urls := illustGetUrls(illust, SIZE_ORIGINAL)
 
 	var path string
 	switch t := target.(type) {
@@ -232,7 +262,7 @@ func (a *AppPixivAPI) Download(id uint64, target any) (sizes []int64, err error)
 	return
 }
 
-// DownloadBytes just like Download but return data directly
+// DownloadBytes just like [AppPixivAPI.Download] but return data directly
 func (a *AppPixivAPI) DownloadBytes(id uint64) (datas [][]byte, err error) {
 	illust, err := a.IllustDetail(id)
 	if err != nil {
@@ -248,22 +278,14 @@ func (a *AppPixivAPI) DownloadBytes(id uint64) (datas [][]byte, err error) {
 		return
 	}
 
-	var urls []string
-	if illust.MetaSinglePage.OriginalImageURL == "" {
-		for _, img := range illust.MetaPages {
-			urls = append(urls, img.Images.Original)
-		}
-	} else {
-		urls = append(urls, illust.MetaSinglePage.OriginalImageURL)
-	}
-
+	urls := illustGetUrls(illust, SIZE_ORIGINAL)
 	for _, u := range urls {
-		data, e := downloadBytes(a.downloadClient, u)
+		img, e := downloadImage(context.TODO(), a.downloadClient, u)
 		if e != nil {
 			err = errors.Wrapf(e, "download url %s failed", u)
 			return
 		}
-		datas = append(datas, data)
+		datas = append(datas, img.Data)
 	}
 	return
 }

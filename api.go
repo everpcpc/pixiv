@@ -1,6 +1,7 @@
 package pixiv
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/dghubble/sling"
@@ -219,26 +221,40 @@ func download(client *http.Client, url, path, name, tmpdir string, replace bool)
 	return n, nil
 }
 
-// downloadBytes just like download but return data directly
-func downloadBytes(client *http.Client, url string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, nil)
+func downloadImage(ctx context.Context, client *http.Client, url string) (Image, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "create request failed")
+		return Image{}, errors.Wrap(err, "create request failed")
 	}
 	req.Header.Add("Referer", apiBase)
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return Image{}, errors.Wrap(err, "request failed")
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("download failed: %s", resp.Status)
+		return Image{}, fmt.Errorf("download failed: %s", resp.Status)
+	}
+
+	// image/xxx
+	contentType := resp.Header.Get("Content-Type")
+	if !strings.HasPrefix(contentType, "image") {
+		return Image{}, fmt.Errorf("invalid content type: %s, %s", contentType, url)
+	}
+	contentTypeSplits := strings.Split(contentType, "/")
+	if len(contentTypeSplits) != 2 || len(contentTypeSplits[1]) == 0 {
+		return Image{}, fmt.Errorf("invalid content type: %s, %s", contentType, url)
 	}
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "download failed")
+		return Image{}, errors.Wrap(err, "download failed")
 	}
-	return b, nil
+	return Image{
+		Data:    b,
+		P:       urlToPageNum(url),
+		Type:    parseImageType(contentTypeSplits[1]),
+		TypeRaw: contentTypeSplits[1],
+	}, nil
 }
